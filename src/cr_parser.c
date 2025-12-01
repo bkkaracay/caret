@@ -135,30 +135,64 @@ static void sync(CrParser *p) {
 	}
 }
 
-static CrNode *new_node(CrArena *a, CrNodeType type, CrToken token) {
+static CrNode *new_node(CrArena *a, CrNodeType type) {
 	CrNode *node = CR_ARENA_NEW(a, CrNode);
 	node->type = type;
-	node->token = token;
+
 	return node;
 }
 
+static void set_span_t(CrNode *n, CrToken first) {
+	n->start = first.start;
+	n->length = first.length;
+	n->line = first.line;
+	n->line_start = first.line_start;
+}
+
+static void set_span_tt(CrNode *n, CrToken first, CrToken last) {
+	n->start = first.start;
+	n->length = (uint32_t) (last.start + last.length - first.start);
+	n->line = first.line;
+	n->line_start = first.line_start;
+}
+
+static void set_span_tn(CrNode *n, CrToken first, CrNode *last) {
+	n->start = first.start;
+	n->length = (uint32_t) (last->start + last->length - first.start);
+	n->line = first.line;
+	n->line_start = first.line_start;
+}
+
+static void set_span_nn(CrNode *n, CrNode *first, CrNode *last) {
+	n->start = first->start;
+	n->length = (uint32_t) (last->start + last->length - first->start);
+	n->line = first->line;
+	n->line_start = first->line_start;
+}
+
+
 static CrNode *unary(CrParser *p, CrNode *null_node) {
-	CrNode *op = new_node(p->arena, CR_NT_UNARY, p->previous);
+	CrNode *op = new_node(p->arena, CR_NT_UNARY);
+	CrToken op_tok = p->previous;
 
 	skip_newlines(p);
+
 	op->as.unary_op.right = parse_precedence(p, PREC_UNARY);
+
+	set_span_tn(op, op_tok, op->as.unary_op.right);
 	return op;
 }
 
 static CrNode *binary(CrParser *p, CrNode *prev) {
-	CrNode *op = new_node(p->arena, CR_NT_BINARY, p->previous);	
+	CrNode *op = new_node(p->arena, CR_NT_BINARY);	
 	op->as.binary_op.left = prev;
 
-	Precedence prec = get_rule(op->token).prec + 1;
+	Precedence prec = get_rule(p->previous).prec + 1;
 
 	skip_newlines(p);
 	op->as.binary_op.right = parse_precedence(p, prec);
-	
+
+	set_span_nn(op, op->as.binary_op.left, op->as.binary_op.right);	
 	return op;
 }
 
@@ -171,22 +205,23 @@ static CrNode *int_lit(CrParser *p, CrNode *prev) {
 	}
 
 	
-	CrNode *node = new_node(p->arena, CR_NT_INT_LIT, p->previous);
+	CrNode *node = new_node(p->arena, CR_NT_INT_LIT);
 	node->as.int_lit.val = val;
 
+	set_span_t(node, p->previous);
 	return node;
 }
 
 static CrNode *float_lit(CrParser *p, CrNode *prev) {
 	double val;
 	if(!cr_str2float(p->previous.start, p->previous.length, &val)) {
-		err_at_prev(p,
-			"Invalid float literal.");
+		err_at_prev(p, "Invalid float literal.");
 	}
 
-	CrNode *node = new_node(p->arena, CR_NT_FLOAT_LIT, p->previous);
+	CrNode *node = new_node(p->arena, CR_NT_FLOAT_LIT);
 	node->as.float_lit.val = val;
-	
+
+	set_span_t(node, p->previous);
 	return node;
 }
 
@@ -194,31 +229,35 @@ static CrNode *rune_lit(CrParser *p, CrNode *prev) {
 	uint32_t rune;
 	cr_utf8_decode(p->previous.start + 1, &rune);
 
-	CrNode *node = new_node(p->arena, CR_NT_RUNE_LIT, p->previous);
+	CrNode *node = new_node(p->arena, CR_NT_RUNE_LIT);
 	node->as.rune_lit.val = rune;
 
+	set_span_t(node, p->previous);
 	return node;
 }
 
 static CrNode *true_lit(CrParser *p, CrNode *prev) {
-	CrNode *node = new_node(p->arena, CR_NT_BOOL_LIT, p->previous);
+	CrNode *node = new_node(p->arena, CR_NT_BOOL_LIT);
 	node->as.bool_lit.val = 1;
 
+	set_span_t(node, p->previous);
 	return node;
 }
 
 static CrNode *false_lit(CrParser *p, CrNode *prev) {
-	CrNode *node = new_node(p->arena, CR_NT_BOOL_LIT, p->previous);
+	CrNode *node = new_node(p->arena, CR_NT_BOOL_LIT);
 	node->as.bool_lit.val = 0;
 
+	set_span_t(node, p->previous);
 	return node;
 }
 
 static CrNode *variable(CrParser *p, CrNode *prev) {
-	CrNode *node = new_node(p->arena, CR_NT_VAR, p->previous);
+	CrNode *node = new_node(p->arena, CR_NT_VAR);
 	node->as.var.name = cr_intern_string(p->strpool, p->previous.start,
 	                                     p->previous.length);
-
+	
+	set_span_t(node, p->previous);
 	return node;
 }
 
@@ -284,8 +323,9 @@ static CrNode *block(CrParser*);
 
 static CrNode *block(CrParser *p) {
 	consume(p, CR_TT_LBRACE, "Expect '{' before block.");
+	CrToken lbrace = p->previous;
 
-	CrNode *block_node = new_node(p->arena, CR_NT_BLOCK, p->previous);
+	CrNode *block_node = new_node(p->arena, CR_NT_BLOCK);
 
 	skip_newlines(p);
 	
@@ -301,15 +341,20 @@ static CrNode *block(CrParser *p) {
 	block_node->as.block.stmts = head;
 
 	consume(p, CR_TT_RBRACE, "Expect '}' after block");
+	CrToken rbrace = p->previous;
 
+	set_span_tt(block_node, lbrace, rbrace);
 	return block_node;
 }
 
 static CrNode *if_stmt(CrParser *p) {
-	CrNode *node = new_node(p->arena, CR_NT_IF, p->previous);
+	CrNode *node = new_node(p->arena, CR_NT_IF);
+	CrToken if_tok = p->previous;
+
 	node->as.if_stmt.cond = expression(p);
 	node->as.if_stmt.body = block(p);
-	
+
+	set_span_tn(node, if_tok, node->as.if_stmt.body);
 	return node;
 }
 
@@ -334,17 +379,24 @@ static CrType *type(CrParser *p) {
 }
 
 static CrNode *declaration(CrParser *p) {
-	CrNode *node = new_node(p->arena, CR_NT_VAR_DECL, p->previous);
+	CrNode *node = new_node(p->arena, CR_NT_VAR_DECL);
+	CrToken first = p->previous;
+
 	node->as.var_decl.type = type(p);
 	
 	advance(p);
 	node->as.var_decl.var = cr_intern_string(p->strpool, p->previous.start,
 	                                         p->previous.length);
+	CrToken var_tok = p->previous;
 
 	if(match(p, CR_TT_EQUAL)) {
 		node->as.var_decl.init = expression(p);
+		
+		set_span_tn(node, first, node->as.var_decl.init);
+		return node;
 	}
 
+	set_span_tt(node, first, var_tok); 
 	return node;
 }
 
@@ -352,18 +404,17 @@ static CrNode *exp_assign_stmt(CrParser *p) {
 	CrNode *left = expression(p);
 
 	if(match(p, CR_TT_EQUAL)) {
-		CrNode *assign = new_node(p->arena, CR_NT_ASSIGN, p->previous);
+		CrNode *assign = new_node(p->arena, CR_NT_ASSIGN);
 		
 		assign->as.assign.left = left;
 		assign->as.assign.right = expression(p);
 
+		set_span_nn(assign, left, assign->as.assign.right); 
 		return assign;
 	}
 
 	return left;
 }
-		
-
 
 static CrNode *statement(CrParser *p) {
 	CrNode *stmt;

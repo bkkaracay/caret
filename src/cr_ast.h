@@ -27,7 +27,10 @@ typedef enum {
 typedef struct CrNode {
 	CrNodeType type;
 	struct CrNode *next;
-	CrToken token; //TODO remove
+	const char *start;
+	uint32_t length;
+	uint32_t line;
+	const char *line_start;
 
 	union {
 		struct { uint64_t val; } int_lit;
@@ -35,11 +38,13 @@ typedef struct CrNode {
 		struct { uint32_t val; } rune_lit;
 		struct { uint8_t val; } bool_lit;
 
-		struct { 
+		struct {
+			CrTokenType tt;
 			struct CrNode *right; 
 		} unary_op;
 
 		struct {
+			CrTokenType tt;
 			struct CrNode *left;
 			struct CrNode *right;
 		} binary_op;

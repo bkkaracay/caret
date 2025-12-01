@@ -68,16 +68,31 @@ static void print_indent(int intent) {
 static void print_node_binary(CrNode *node) {
 	printf("( ");	
 	print_node(node->as.binary_op.left, 0);
+	
+	char *op_str;
+	switch(node->as.binary_op.tt) {
+		case CR_TT_PLUS:    op_str = "+"; break;
+		case CR_TT_MINUS:   op_str = "-"; break;
+		case CR_TT_STAR:    op_str = "*"; break;
+		case CR_TT_SLASH:   op_str = "/"; break;
+		case CR_TT_PERCENT: op_str = "%"; break;
+		default: op_str = "<Invalid Op>";
+	}
 
-	printf(" %.*s ", node->token.length, node->token.start);
+	printf(" %s ", op_str); 
 	
 	print_node(node->as.binary_op.right, 0);
 	printf(" )");	
 }
 
 static void print_node_unary(CrNode *node) {
-	printf("( ");	
-	printf("%.*s ", node->token.length, node->token.start);
+	char *op_str;
+	switch(node->as.unary_op.tt) {
+		case CR_TT_MINUS:   op_str = "-"; break;
+		default: op_str = "<Invalid Op>";
+	}
+
+	printf(" %s ", op_str);
 
 	print_node(node->as.unary_op.right, 0);
 	printf(" )");
@@ -137,6 +152,17 @@ static void print_node_if(CrNode *node, int in) {
 	printf(")");
 }
 
+static void print_node_assign(CrNode *node) {
+	printf("( ");	
+	print_node(node->as.assign.left, 0);
+	
+	printf(" = "); 
+	
+	print_node(node->as.assign.right, 0);
+	printf(" )");	
+}
+
+
 static void print_node(CrNode *node, int in) {
 	print_indent(in);
 
@@ -180,7 +206,7 @@ static void print_node(CrNode *node, int in) {
 			print_node_var_decl(node);
 			break;
 		case CR_NT_ASSIGN:
-			print_node_binary(node);
+			print_node_assign(node);
 			break;
 		default:
 			printf("Invalid");

@@ -6,7 +6,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define CR_DEBUG_PRINT_TOKEN
-#define CR_DEBUG_PRINT_AST
+//#define CR_DEBUG_PRINT_TOKEN
+//#define CR_DEBUG_PRINT_AST
 
 #endif
