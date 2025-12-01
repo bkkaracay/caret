@@ -1,4 +1,3 @@
-#include <inttypes.h>
 #include <stdio.h>
 
 #include "cr_debug.h"
@@ -84,9 +83,9 @@ static void print_node_unary(CrNode *node) {
 	printf(" )");
 }
 
-static void print_node_typekind(CrNode *node) {
+static void print_type(CrType *type) {
 	char *str;
-	switch(node->as.typekind.tk) {
+	switch(type->kind) {
 		case CR_TK_INT8:     str = "int8"; break;
 		case CR_TK_INT16:    str = "int16"; break;
 		case CR_TK_INT32:    str = "int32"; break;
@@ -104,7 +103,7 @@ static void print_node_typekind(CrNode *node) {
 
 static void print_node_var_decl(CrNode *node) {
 	printf("(");
-	print_node(node->as.var_decl.type, 0);
+	print_type(node->as.var_decl.type);
 	
 	const CrString *var_name = node->as.var_decl.var;
 	printf(" %.*s ", var_name->length, var_name->str);
@@ -166,9 +165,6 @@ static void print_node(CrNode *node, int in) {
 			char *s = (node->as.bool_lit.val != 0) ? 
 				"true" : "false";
 			printf(s);
-			break;
-		case CR_NT_TYPEKIND:
-			print_node_typekind(node);
 			break;
 		case CR_NT_VAR:
 			const CrString *str = node->as.var.name;

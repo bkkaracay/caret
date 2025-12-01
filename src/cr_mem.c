@@ -73,6 +73,10 @@ void cr_free_arena(CrArena *ar) {
 	ar->tail = NULL;
 }
 
+void *cr_malloc(size_t size) {
+	return malloc(size);
+}
+
 void *cr_calloc(size_t num, size_t size) {
 	return calloc(num, size);
 }

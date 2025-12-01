@@ -22,6 +22,7 @@ CrArena cr_new_arena();
 void *cr_arena_alloc(CrArena *arena, uint32_t size);
 void cr_free_arena(CrArena*);
 
+void *cr_malloc(size_t size);
 void *cr_calloc(size_t num, size_t size);
 void cr_free(void *p);
 

@@ -11,14 +11,13 @@ typedef enum {
 } CrTypeKind;
 
 typedef struct {
-	CrTypekind kind;
+	CrTypeKind kind;
 } CrType;
 
 typedef enum {
 	CR_NT_BINARY, CR_NT_UNARY,
 
 	CR_NT_INT_LIT, CR_NT_FLOAT_LIT, CR_NT_RUNE_LIT, CR_NT_BOOL_LIT,
-	CR_NT_TYPEKIND,
 	CR_NT_VAR,
 	CR_NT_BLOCK,
 	CR_NT_IF, CR_NT_VAR_DECL,
@@ -59,7 +58,7 @@ typedef struct CrNode {
 		} if_stmt;
 
 		struct {
-			struct CrType *type;
+			CrType *type;
 			const CrString *var;
 			struct CrNode *init;
 		} var_decl;
