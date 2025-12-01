@@ -276,8 +276,18 @@ static CrToken rune(CrLexer *l) {
 		return err_token(l, "Unexpected newline in rune.");
 	}
 
-	if(!match(l, '\''))
-		return err_token(l, "Multi-char rune literal.");
+	if(!match(l, '\'')) {
+		int lines = 0;
+		while(peek(l) != '\0' && !match(l, '\'')) {
+			if(advance(l) == '\n')
+				lines++;
+		}
+
+		CrToken err = err_token(l, "Multi-char rune literal.");
+		l->line += lines;
+		
+		return err;
+	}
 	
 	return make_token(l, CR_TT_RUNE_LIT);
 }
