@@ -45,27 +45,9 @@ static void print_node_unary(CrNode *node) {
 	printf(" )");
 }
 
-static void print_type(CrType *type) {
-	char *str;
-	switch(type->kind) {
-		case CR_TK_INT8:     str = "int8"; break;
-		case CR_TK_INT16:    str = "int16"; break;
-		case CR_TK_INT32:    str = "int32"; break;
-		case CR_TK_INT64:    str = "int64"; break; 
-		case CR_TK_FLOAT8:   str = "float8"; break;
-		case CR_TK_FLOAT16:  str = "float16"; break;
-		case CR_TK_FLOAT32:  str = "float32"; break;
-		case CR_TK_FLOAT64:  str = "float64"; break;
-		case CR_TK_USER_DEF: str = "<TODO>"; break;
-		default: str = "Invalid";
-	}
-	
-	printf(str);
-}
-
 static void print_node_var_decl(CrNode *node) {
 	printf("(");
-	print_type(node->as.var_decl.type);
+	printf(cr_type_spelling(*(node->as.var_decl.type)));
 	
 	const CrString *var_name = node->as.var_decl.var;
 	printf(" %.*s ", var_name->length, var_name->str);
