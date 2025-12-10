@@ -36,7 +36,10 @@ typedef struct {
 	bool had_fatal;
 } CrLexer;
 	
+const char *cr_tt_spelling(CrTokenType tt);
+
 CrLexer cr_new_lexer(const char *source);
 CrToken cr_scan_token(CrLexer*);
+
 
 #endif

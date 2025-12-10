@@ -6,6 +6,39 @@
 #include "cr_lexer.h"
 #include "cr_utf8.h"
 
+const char *cr_tt_spelling(CrTokenType tt) {
+	switch(tt) {
+		case CR_TT_PLUS:       return "+";
+		case CR_TT_MINUS:      return "-";
+		case CR_TT_STAR:       return "*";
+		case CR_TT_SLASH:      return "/";
+		case CR_TT_PERCENT:    return "%";
+		case CR_TT_LBRACE:     return "{";
+		case CR_TT_RBRACE:     return "}";
+		case CR_TT_EQUAL:      return "=";
+		case CR_TT_INT_LIT:    return "int literal";
+		case CR_TT_FLOAT_LIT:  return "float literal";
+		case CR_TT_RUNE_LIT:   return "rune literal";
+		case CR_TT_TRUE:       return "true";
+		case CR_TT_FALSE:      return "false";
+		case CR_TT_IDENTIFIER: return "identifier";
+		case CR_TT_IF:         return "if";
+		case CR_TT_INT8:       return "int8";
+		case CR_TT_INT16:      return "int16";
+		case CR_TT_INT32:      return "int32";
+		case CR_TT_INT64:      return "int64";
+		case CR_TT_FLOAT8:     return "float8";
+		case CR_TT_FLOAT16:    return "float16";
+		case CR_TT_FLOAT32:    return "float32";
+		case CR_TT_FLOAT64:    return "float64";
+		case CR_TT_NEWLINE:    return "newline";
+		case CR_TT_ERR:        return "err";
+		case CR_TT_FATAL:      return "fatal";
+		case CR_TT_EOF:        return "eof";
+		default:               return "invalid";
+	}
+}
+
 CrLexer cr_new_lexer(const char *source) {
 	CrLexer l;
 	l.token_start = source;
