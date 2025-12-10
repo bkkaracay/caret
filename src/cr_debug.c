@@ -4,48 +4,11 @@
 
 #ifdef CR_DEBUG_PRINT_TOKEN
 
-static void print_tt(CrTokenType tt) {
-	char *str;
-
-	switch(tt) {
-		case CR_TT_PLUS:       str = "CR_TT_PLUS"; break;
-		case CR_TT_MINUS:      str = "CR_TT_MINUS"; break;
-		case CR_TT_STAR:       str = "CR_TT_STAR"; break;
-		case CR_TT_SLASH:      str = "CR_TT_SLASH"; break;
-		case CR_TT_PERCENT:    str = "CR_TT_PERCENT"; break;
-		case CR_TT_LBRACE:     str = "CR_TT_LBRACE"; break;
-		case CR_TT_RBRACE:     str = "CR_TT_RBRACE"; break;
-		case CR_TT_EQUAL:     str = "CR_TT_EQUAL"; break;
-		case CR_TT_INT_LIT:    str = "CR_TT_INT_LIT"; break;
-		case CR_TT_FLOAT_LIT:  str = "CR_TT_FLOAT_LIT"; break;
-		case CR_TT_RUNE_LIT:   str = "CR_TT_RUNE_LIT"; break;
-		case CR_TT_TRUE:       str = "CR_TT_TRUE"; break;
-		case CR_TT_FALSE:      str = "CR_TT_FALSE"; break;
-		case CR_TT_IDENTIFIER: str = "CR_TT_IDENTIFIER"; break;
-		case CR_TT_IF:         str = "CR_TT_IF"; break;
-		case CR_TT_INT8:       str = "CR_TT_INT8"; break;
-		case CR_TT_INT16:      str = "CR_TT_INT16"; break;
-		case CR_TT_INT32:      str = "CR_TT_INT32"; break;
-		case CR_TT_INT64:      str = "CR_TT_INT64"; break;
-		case CR_TT_FLOAT8:     str = "CR_TT_FLOAT8"; break;
-		case CR_TT_FLOAT16:    str = "CR_TT_FLOAT16"; break;
-		case CR_TT_FLOAT32:    str = "CR_TT_FLOAT32"; break;
-		case CR_TT_FLOAT64:    str = "CR_TT_FLOAT64"; break;
-		case CR_TT_NEWLINE:    str = "CR_TT_NEWLINE"; break;
-		case CR_TT_ERR:        str = "CR_TT_ERR"; break;
-		case CR_TT_FATAL:      str = "CR_TT_FATAL"; break;
-		case CR_TT_EOF:        str = "CR_TT_EOF"; break;
-		default:               str = "Invalid"; break;
-	}
-
-	printf(str);
-}
-
 void cr_debug_print_token(CrToken t) {
 	printf("\n-------------");
 	
 	printf("\nType: ");
-	print_tt(t.type);
+	printf(cr_tt_spelling(t.type));
 	
 	printf("\nText: %.*s", t.length, t.start);
 	printf("\nLine: %"PRIu32, t.line);
@@ -69,30 +32,14 @@ static void print_node_binary(CrNode *node) {
 	printf("( ");	
 	print_node(node->as.binary_op.left, 0);
 	
-	char *op_str;
-	switch(node->as.binary_op.tt) {
-		case CR_TT_PLUS:    op_str = "+"; break;
-		case CR_TT_MINUS:   op_str = "-"; break;
-		case CR_TT_STAR:    op_str = "*"; break;
-		case CR_TT_SLASH:   op_str = "/"; break;
-		case CR_TT_PERCENT: op_str = "%"; break;
-		default: op_str = "<Invalid Op>";
-	}
-
-	printf(" %s ", op_str); 
+	printf(" %s ", cr_tt_spelling(node->as.binary_op.tt)); 
 	
 	print_node(node->as.binary_op.right, 0);
 	printf(" )");	
 }
 
 static void print_node_unary(CrNode *node) {
-	char *op_str;
-	switch(node->as.unary_op.tt) {
-		case CR_TT_MINUS:   op_str = "-"; break;
-		default: op_str = "<Invalid Op>";
-	}
-
-	printf(" %s ", op_str);
+	printf(" %s ", cr_tt_spelling(node->as.unary_op.tt)); 
 
 	print_node(node->as.unary_op.right, 0);
 	printf(" )");
