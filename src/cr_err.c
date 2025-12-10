@@ -41,7 +41,7 @@ void cr_print_err(int line, const char *l_start, const char* ul_start,
 	va_list args;
 	va_start(args, fmt);
 
-	cr_print_err(line, l_start, ul_start, ul_len, fmt, args);
+	cr_print_err_valist(line, l_start, ul_start, ul_len, fmt, args);
 
 	va_end(args);
 }
