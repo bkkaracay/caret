@@ -1,3 +1,4 @@
+#include <stdarg.h>
 #include <stdio.h>
 
 #include "cr_err.h"
@@ -15,12 +16,11 @@ static void print_n_times(int n, char c) {
 		fprintf(stderr, "%c", c);
 }
 
-void cr_print_err(const char *message, int line, const char *l_start,
-                  const char* ul_start, int ul_len) {
+void cr_print_err_valist(int line, const char *l_start, const char* ul_start,
+                  int ul_len, const char *fmt, va_list args) {
 	fprintf(stderr, "[Line %d] ", line);
-	fprintf(stderr, message);
+	vfprintf(stderr, fmt, args);
 	fprintf(stderr, "\n");
-
 
 	int l_len = calc_line_len(l_start);
 	fprintf(stderr, " | %.*s\n", l_len, l_start);
@@ -35,3 +35,14 @@ void cr_print_err(const char *message, int line, const char *l_start,
 	print_n_times(ul_len, '^');
 	fprintf(stderr, "\n");
 }
+
+void cr_print_err(int line, const char *l_start, const char* ul_start,
+                  int ul_len, const char *fmt, ...) {
+	va_list args;
+	va_start(args, fmt);
+
+	cr_print_err(line, l_start, ul_start, ul_len, fmt, args);
+
+	va_end(args);
+}
+

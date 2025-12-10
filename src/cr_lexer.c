@@ -20,11 +20,12 @@ CrLexer cr_new_lexer(const char *source) {
 static void utf8_err(CrLexer *l) {
 	if(!l->had_fatal) {
 		l->had_fatal = true;
-		cr_print_err("Malformed UTF-8.", //TODO possible bad output
+		cr_print_err(
 			l->line,
 			l->line_start, 
 			l->token_start,
-			(uint32_t)(l->current - l->token_start)
+			(uint32_t)(l->current - l->token_start),
+			"Malformed UTF-8." //TODO possible bad output
 		);
 	}
 }
@@ -124,11 +125,12 @@ static CrToken make_token(CrLexer *l, CrTokenType type) {
 }
 
 static CrToken err_token(CrLexer *l, const char *message) {
-	cr_print_err(message,
+	cr_print_err(
 		l->line,
 		l->line_start, 
 		l->token_start,
-		(uint32_t)(l->current - l->token_start)
+		(uint32_t)(l->current - l->token_start),
+		message
 	);
 
 	return make_token(l, CR_TT_ERR);

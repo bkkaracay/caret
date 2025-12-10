@@ -53,11 +53,11 @@ static void err_at(CrParser *p, CrToken token, const char *msg) {
 	p->sync_mode = 1;
 	p->had_err = 1;
 	cr_print_err(
-		msg,
 		token.line,
 		token.line_start,
 		token.start,
-		token.length
+		token.length,
+		msg
 	);
 }
 
