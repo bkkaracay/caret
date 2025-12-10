@@ -3,20 +3,12 @@
 
 #include "cr_lexer.h"
 #include "cr_object.h"
-
-typedef enum {
-	CR_TK_INT8, CR_TK_INT16, CR_TK_INT32, CR_TK_INT64, 
-	CR_TK_FLOAT8, CR_TK_FLOAT16, CR_TK_FLOAT32, CR_TK_FLOAT64,
-	CR_TK_USER_DEF,
-} CrTypeKind;
-
-typedef struct {
-	CrTypeKind kind;
-} CrType;
+#include "cr_type.h"
 
 typedef enum {
 	CR_NT_BINARY, CR_NT_UNARY,
-
+	
+	//TODO Merge literal types into single type
 	CR_NT_INT_LIT, CR_NT_FLOAT_LIT, CR_NT_RUNE_LIT, CR_NT_BOOL_LIT,
 	CR_NT_VAR,
 	CR_NT_BLOCK,
