@@ -138,6 +138,7 @@ static void sync(CrParser *p) {
 static CrNode *new_node(CrArena *a, CrNodeType type) {
 	CrNode *node = CR_ARENA_NEW(a, CrNode);
 	node->type = type;
+	node->next = NULL;
 
 	return node;
 }
@@ -174,6 +175,7 @@ static void set_span_nn(CrNode *n, CrNode *first, CrNode *last) {
 static CrNode *unary(CrParser *p, CrNode *null_node) {
 	CrNode *op = new_node(p->arena, CR_NT_UNARY);
 	CrToken op_tok = p->previous;
+	op->as.unary_op.tt = op_tok.type;
 
 	skip_newlines(p);
 
@@ -187,6 +189,7 @@ static CrNode *binary(CrParser *p, CrNode *prev) {
 	CrNode *op = new_node(p->arena, CR_NT_BINARY);	
 	op->as.binary_op.left = prev;
 
+	op->as.binary_op.tt = p->previous.type;
 	Precedence prec = get_rule(p->previous).prec + 1;
 
 	skip_newlines(p);
@@ -388,6 +391,8 @@ static CrNode *declaration(CrParser *p) {
 	node->as.var_decl.var = cr_intern_string(p->strpool, p->previous.start,
 	                                         p->previous.length);
 	CrToken var_tok = p->previous;
+
+	node->as.var_decl.init = NULL;
 
 	if(match(p, CR_TT_EQUAL)) {
 		node->as.var_decl.init = expression(p);
