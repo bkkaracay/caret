@@ -47,7 +47,7 @@ static void print_node_unary(CrNode *node) {
 
 static void print_node_var_decl(CrNode *node) {
 	printf("(");
-	printf(cr_type_spelling(*(node->as.var_decl.type)));
+	printf(cr_type_spelling(node->as.var_decl.type));
 	
 	const CrString *var_name = node->as.var_decl.var;
 	printf(" %.*s ", var_name->length, var_name->str);

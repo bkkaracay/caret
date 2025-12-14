@@ -361,7 +361,7 @@ static CrNode *if_stmt(CrParser *p) {
 	return node;
 }
 
-static CrType *type(CrParser *p) {
+static const CrType *type(CrParser *p) {
 	CrTypeKind kind;
 	switch(p->previous.type) {
 		case CR_TT_INT8:       kind = CR_TK_INT8; break;
@@ -375,10 +375,7 @@ static CrType *type(CrParser *p) {
 		case CR_TT_IDENTIFIER: kind = CR_TK_USER_DEF; break;
 	}
 
-	CrType *type = CR_ARENA_NEW(p->arena, CrType); 
-	type->kind = kind;
-
-	return type;
+	return cr_basic_type(p->intr, kind);
 }
 
 static CrNode *declaration(CrParser *p) {

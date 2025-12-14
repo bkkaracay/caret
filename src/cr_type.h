@@ -1,7 +1,9 @@
 #ifndef cr_type_h
 #define cr_type_h
 
-#include "cr_common.h"
+#include "cr_map.h"
+
+typedef struct CrInterner CrInterner;
 
 typedef enum {
 	CR_TK_INT8, CR_TK_INT16, CR_TK_INT32, CR_TK_INT64, 
@@ -13,9 +15,11 @@ typedef enum {
 } CrTypeKind;
 
 typedef struct {
+	CrHashable h;
 	CrTypeKind kind;
 } CrType;
 
-const char *cr_type_spelling(CrType type);
+const char *cr_type_spelling(const CrType *type);
+const CrType *cr_basic_type(CrInterner *intr, CrTypeKind kind);
 
 #endif

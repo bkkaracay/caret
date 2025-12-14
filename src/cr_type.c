@@ -1,7 +1,8 @@
 #include "cr_type.h"
+#include "cr_intern.h"
 
-const char *cr_type_spelling(CrType type) {
-	switch(type.kind) {
+const char *cr_type_spelling(const CrType *type) {
+	switch(type->kind) {
 		case CR_TK_INT8:      return "int8";
 		case CR_TK_INT16:     return "int16";
 		case CR_TK_INT32:     return "int32";
@@ -20,3 +21,8 @@ const char *cr_type_spelling(CrType type) {
 
 	return "invalid";
 }
+
+const CrType *cr_basic_type(CrInterner *in, CrTypeKind kind) {
+	return cr_intern_type(in, (CrType) { .kind = kind });
+}
+

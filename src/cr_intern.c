@@ -17,9 +17,19 @@ bool compare_string(const CrHashable *h0, const CrHashable *h1) {
 	return false;
 }
 
+bool compare_type(const CrHashable *h0, const CrHashable *h1) {
+	//CrTypeKind is used as hash.
+	//Just comparing them should be enough for now.
+	if(h0->hash == h1->hash)
+		return true;
+
+	return false;
+}
+
 CrInterner cr_new_interner(CrArena *arena) {
 	CrInterner intr;
 	intr.string_map = cr_new_map(compare_string);
+	intr.type_map = cr_new_map(compare_type);
 	intr.arena = arena;
 
 	return intr;
@@ -30,6 +40,7 @@ void cr_free_interner(CrInterner *intr) {
 		return;
 
 	cr_free_map(&intr->string_map);
+	cr_free_map(&intr->type_map);
 }
 
 static uint32_t hash_str(const char *s, uint32_t len) {
@@ -67,6 +78,30 @@ const CrString *cr_intern_string(CrInterner *in, const char *str,
 		return result;
 
 	CrString *new = push_string(in->arena, temp);
+
+	cr_map_set(&in->string_map, CR_AS_HASHABLE(new), NULL);
+	return new;
+}
+
+static uint32_t hash_type(CrType type) {
+	return type.kind;
+}
+
+static const CrType *push_type(CrArena *arena, CrType t) {
+	CrType *new = CR_ARENA_NEW(arena, CrType);
+	new->h.hash = t.h.hash;
+	new->kind = t.kind;
+
+	return new;
+}
+
+const CrType *cr_intern_type(CrInterner *in, CrType type) {
+	const CrType *result = AS_TYPE(cr_map_find(&in->type_map,
+	                                           CR_AS_HASHABLE(&type)));
+	if(result != NULL)
+		return result;
+
+	const CrType *new = push_type(in->arena, type);
 
 	cr_map_set(&in->string_map, CR_AS_HASHABLE(new), NULL);
 	return new;

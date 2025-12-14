@@ -55,7 +55,7 @@ typedef struct CrNode {
 		} if_stmt;
 
 		struct {
-			CrType *type;
+			const CrType *type;
 			const CrString *var;
 			struct CrNode *init;
 		} var_decl;
