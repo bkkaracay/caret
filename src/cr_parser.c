@@ -6,11 +6,11 @@
 #include "cr_utf8.h"
 #include "cr_strops.h"
 
-CrParser cr_new_parser(CrLexer *lexer, CrArena *arena, CrStringPool *strpool) {
+CrParser cr_new_parser(CrLexer *lexer, CrArena *arena, CrInterner *intr) {
 	CrParser p;
 	p.lexer = lexer;
 	p.arena = arena;
-	p.strpool = strpool;
+	p.intr = intr;
 	p.had_fatal = false;
 	p.had_err = false;
 	p.sync_mode = false;
@@ -257,7 +257,7 @@ static CrNode *false_lit(CrParser *p, CrNode *prev) {
 
 static CrNode *variable(CrParser *p, CrNode *prev) {
 	CrNode *node = new_node(p->arena, CR_NT_VAR);
-	node->as.var.name = cr_intern_string(p->strpool, p->previous.start,
+	node->as.var.name = cr_intern_string(p->intr, p->previous.start,
 	                                     p->previous.length);
 	
 	set_span_t(node, p->previous);
@@ -388,7 +388,7 @@ static CrNode *declaration(CrParser *p) {
 	node->as.var_decl.type = type(p);
 	
 	advance(p);
-	node->as.var_decl.var = cr_intern_string(p->strpool, p->previous.start,
+	node->as.var_decl.var = cr_intern_string(p->intr, p->previous.start,
 	                                         p->previous.length);
 	CrToken var_tok = p->previous;
 

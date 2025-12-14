@@ -1,22 +1,30 @@
 #include <string.h>
 
 #include "cr_map.h"
-#include "cr_object.h"
+#include "cr_mem.h"
 
 #define MAX_LOAD 0.60
 #define GROW_FACTOR 1.50
 #define INITIAL_SIZE 8
 
-CrMap cr_new_map() {
+CrMap cr_new_map(cr_map_keycmp comparer) {
 	CrMap map;
 	map.used = 0;
 	map.capacity = 0;
 	map.entries = NULL;
+	map.cmp = comparer;
 
 	return map;
 }
 
-static CrMapEntry *find_entry(CrMap *map, const CrString *key) {
+void cr_free_map(CrMap *map) {
+	if(map == NULL)
+		return;
+
+	cr_free(map->entries);
+}
+
+static CrMapEntry *find_entry(CrMap *map, const CrHashable *key) {
 	int index = key->hash % map->capacity;
 
 	CrMapEntry *tomb = NULL;
@@ -42,7 +50,7 @@ static CrMapEntry *find_entry(CrMap *map, const CrString *key) {
 	return NULL;
 }
 
-bool cr_map_get(CrMap *map, const CrString *key, const CrString **val) {
+bool cr_map_get(CrMap *map, const CrHashable *key, const void **val) {
 	if(map->capacity == 0)
 		return false;
 
@@ -78,7 +86,7 @@ static void grow_map(CrMap *map) {
 }
 
 
-bool cr_map_set(CrMap *map, const CrString *key, const CrString *val) {
+void cr_map_set(CrMap *map, const CrHashable *key, const void *val) {
 	if(MAX_LOAD * map->capacity < map->used + 1)
 		grow_map(map);
 
@@ -92,10 +100,9 @@ bool cr_map_set(CrMap *map, const CrString *key, const CrString *val) {
 
 	entry->val = val;
 	entry->is_tomb = false;
-	return true;
 }
 
-bool cr_map_del(CrMap *map, const CrString *key) {
+bool cr_map_del(CrMap *map, const CrHashable *key) {
 	if(map->capacity == 0)
 		return false;
 
@@ -109,13 +116,7 @@ bool cr_map_del(CrMap *map, const CrString *key) {
 	return true;
 }
 
-static bool strings_equal(const CrString *s0, const CrString *s1) {
-	return s0->length == s1->length &&
-	       s0->hash == s1->hash &&
-	       memcmp(s0->str, s1->str, s0->length) == 0;
-}
-
-const CrString *cr_map_find_string(CrMap *map, const CrString *key) {
+const CrHashable *cr_map_find(CrMap *map, const CrHashable *key) {
 	if(map->capacity == 0)
 		return NULL;
 
@@ -128,7 +129,7 @@ const CrString *cr_map_find_string(CrMap *map, const CrString *key) {
 		if(entry->key == NULL) {
 			if(!entry->is_tomb)
 				return NULL;
-		} else if(strings_equal(entry->key, key)) {
+		} else if(map->cmp(entry->key, key)) {
 			return entry->key;
 		}
 			

@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -20,11 +21,13 @@ int main() {
 	CrArena arena = cr_new_arena();
 
 	CrArena str_arena = cr_new_arena();
-	CrStringPool strpool = cr_new_string_pool(&str_arena);
+	CrInterner intr = cr_new_interner(&str_arena);
 
-	CrParser parser = cr_new_parser(&lexer, &arena, &strpool);
+	CrParser parser = cr_new_parser(&lexer, &arena, &intr);
 	CrNode *node = cr_produce_ast(&parser);
 	
+	free(s);
+	cr_free_interner(&intr);
 	cr_free_arena(&str_arena);
 	cr_free_arena(&arena);
 }
