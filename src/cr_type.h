@@ -8,6 +8,8 @@ typedef enum {
 	CR_TK_FLOAT8, CR_TK_FLOAT16, CR_TK_FLOAT32, CR_TK_FLOAT64,
 	CR_TK_INT_LIT, CR_TK_FLOAT_LIT, CR_TK_RUNE_LIT, CR_TK_BOOL_LIT,
 	CR_TK_USER_DEF,
+
+	CR_TK_ERR,
 } CrTypeKind;
 
 typedef struct {

@@ -15,6 +15,7 @@ const char *cr_type_spelling(CrType type) {
 		case CR_TK_RUNE_LIT:  return "rune literal";
 		case CR_TK_BOOL_LIT:  return "bool literal";
 		case CR_TK_USER_DEF:  return "<TODO>";
+		case CR_TK_ERR:       return "internal err";
 	}
 
 	return "invalid";
