@@ -3,7 +3,7 @@
 
 #include "cr_map.h"
 #include "cr_mem.h"
-#include "cr_object.h"
+#include "cr_value.h"
 #include "cr_type.h"
 
 typedef struct CrInterner {

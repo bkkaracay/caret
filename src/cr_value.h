@@ -1,5 +1,5 @@
-#ifndef cr_object_h
-#define cr_object_h
+#ifndef cr_value_h
+#define cr_value_h
 
 #include "cr_map.h"
 

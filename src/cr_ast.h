@@ -2,7 +2,7 @@
 #define cr_ast_h
 
 #include "cr_lexer.h"
-#include "cr_object.h"
+#include "cr_value.h"
 #include "cr_type.h"
 
 typedef enum {

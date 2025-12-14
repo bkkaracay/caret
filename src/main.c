@@ -5,7 +5,6 @@
 #include "cr_lexer.h"
 #include "cr_debug.h"
 #include "cr_parser.h"
-#include "cr_object.h"
 
 int main() {
 	char *s = strdup(
