@@ -31,6 +31,8 @@ const char *cr_tt_spelling(CrTokenType tt) {
 		case CR_TT_FLOAT16:    return "float16";
 		case CR_TT_FLOAT32:    return "float32";
 		case CR_TT_FLOAT64:    return "float64";
+		case CR_TT_BOOL:       return "bool";
+		case CR_TT_RUNE:       return "rune";
 		case CR_TT_NEWLINE:    return "newline";
 		case CR_TT_ERR:        return "err";
 		case CR_TT_FATAL:      return "fatal";
@@ -253,8 +255,8 @@ static CrTokenType check_len_tt(CrLexer *l, uint32_t len, CrTokenType type) {
      	
 static CrTokenType identifier_type(CrLexer *l) {
 	switch(l->token_start[0]) {
-		case 't':
-			return check_keyword(l, 1, 3, "rue", CR_TT_TRUE);
+		case 'b':
+			return check_keyword(l, 1, 3, "ool", CR_TT_BOOL);
 		case 'f':
 			if(check_len(l, 1))
 				break;
@@ -277,6 +279,10 @@ static CrTokenType identifier_type(CrLexer *l) {
 					return check_variants(l, 2, 1, "t", int_variants, 4);
 			}
 			break;
+		case 'r':
+			return check_keyword(l, 1, 3, "une", CR_TT_RUNE);
+		case 't':
+			return check_keyword(l, 1, 3, "rue", CR_TT_TRUE);
 	}
 
 	return CR_TT_IDENTIFIER;

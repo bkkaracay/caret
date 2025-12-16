@@ -372,6 +372,8 @@ static const CrType *type(CrParser *p) {
 		case CR_TT_FLOAT16:    kind = CR_TK_FLOAT16; break;
 		case CR_TT_FLOAT32:    kind = CR_TK_FLOAT32; break;
 		case CR_TT_FLOAT64:    kind = CR_TK_FLOAT64; break;
+		case CR_TT_BOOL:       kind = CR_TK_BOOL; break;
+		case CR_TT_RUNE:       kind = CR_TK_RUNE; break;
 		case CR_TT_IDENTIFIER: kind = CR_TK_USER_DEF; break;
 	}
 
@@ -432,6 +434,8 @@ static CrNode *statement(CrParser *p) {
 		case CR_TT_FLOAT16:
 		case CR_TT_FLOAT32:
 		case CR_TT_FLOAT64:
+		case CR_TT_BOOL:
+		case CR_TT_RUNE:
 		case CR_TT_IDENTIFIER:
 			if(p->next.type == CR_TT_IDENTIFIER) {
 				advance(p);

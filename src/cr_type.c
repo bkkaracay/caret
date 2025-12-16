@@ -13,8 +13,8 @@ const char *cr_type_spelling(const CrType *type) {
 		case CR_TK_FLOAT64:   return "float64";
 		case CR_TK_INT_LIT:   return "int literal";
 		case CR_TK_FLOAT_LIT: return "float literal";
-		case CR_TK_RUNE_LIT:  return "rune literal";
-		case CR_TK_BOOL_LIT:  return "bool literal";
+		case CR_TK_RUNE:      return "rune";
+		case CR_TK_BOOL:      return "bool";
 		case CR_TK_USER_DEF:  return "<TODO>";
 		case CR_TK_ERR:       return "internal err";
 	}
