@@ -16,7 +16,7 @@ CrInterner cr_new_interner(CrArena *arena);
 void cr_free_interner(CrInterner *intr);
 
 const CrString *cr_intern_string(CrInterner *intr, const char *s,
-                                 uint32_t len);
+                                 size_t len);
 
 const CrType *cr_intern_type(CrInterner *intr, CrType type);
 

@@ -25,7 +25,7 @@ void cr_free_map(CrMap *map) {
 }
 
 static CrMapEntry *find_entry(CrMap *map, const CrHashable *key) {
-	int index = key->hash % map->capacity;
+	uint32_t index = key->hash % map->capacity;
 
 	CrMapEntry *tomb = NULL;
 	while(true) {
@@ -63,7 +63,7 @@ bool cr_map_get(CrMap *map, const CrHashable *key, const void **val) {
 }
 
 static void grow_map(CrMap *map) {
-	int old_cap = map->capacity;
+	uint32_t old_cap = map->capacity;
 	if(old_cap == 0)
 		map->capacity = INITIAL_SIZE;
 	else
@@ -74,7 +74,7 @@ static void grow_map(CrMap *map) {
 	
 	map->used = 0;
 
-	for(int i = 0; i < old_cap; i++) {
+	for(uint32_t i = 0; i < old_cap; i++) {
 		CrMapEntry old = old_entries[i];
 		if(old.key == NULL)
 			continue;
@@ -120,7 +120,7 @@ const CrHashable *cr_map_find(CrMap *map, const CrHashable *key) {
 	if(map->capacity == 0)
 		return NULL;
 
-	int index = key->hash % map->capacity;
+	uint32_t index = key->hash % map->capacity;
 
 	CrMapEntry *tomb = NULL;
 	while(true) {

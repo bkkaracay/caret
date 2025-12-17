@@ -16,8 +16,8 @@ typedef struct {
 typedef bool (*cr_map_keycmp)(const CrHashable*, const CrHashable*);
 
 typedef struct {
-	int used;
-	int capacity;
+	uint32_t used;
+	uint32_t capacity;
 	CrMapEntry *entries;
 	cr_map_keycmp cmp;
 } CrMap;

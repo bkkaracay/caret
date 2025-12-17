@@ -11,8 +11,8 @@ union max_align {
 	void (*f)(void);
 };
 
-static uint32_t calc_aligned(uint32_t size) {
-	uint32_t aligner = sizeof(union max_align) - 1;
+static size_t calc_aligned(size_t size) {
+	size_t aligner = sizeof(union max_align) - 1;
 	return (size + aligner) & ~aligner;
 }
 
@@ -24,7 +24,7 @@ CrArena cr_new_arena() {
 	return a;
 }
 
-static CrBlock *new_block(CrArena *ar, uint32_t aligned_size) {
+static CrBlock *new_block(CrArena *ar, size_t aligned_size) {
 	if(aligned_size < BLOCK_SIZE)
 		aligned_size = BLOCK_SIZE;
 
@@ -46,7 +46,7 @@ static void link_block(CrArena *ar, CrBlock *block) {
 	ar->head = block;
 }
 
-void *cr_arena_alloc(CrArena *ar, uint32_t size) {
+void *cr_arena_alloc(CrArena *ar, size_t size) {
 	uint32_t needed = calc_aligned(size);
 
 	if(ar->head == NULL || needed > (ar->head->size - ar->head->used)) {

@@ -43,9 +43,9 @@ void cr_free_interner(CrInterner *intr) {
 	cr_free_map(&intr->type_map);
 }
 
-static uint32_t hash_str(const char *s, uint32_t len) {
-	uint32_t hash = 2166136261;
-	for(uint32_t i = 0; i < len; i++) {
+static uint32_t hash_str(const char *s, size_t len) {
+	size_t hash = 2166136261;
+	for(size_t i = 0; i < len; i++) {
 		hash ^= (unsigned char) s[i];
 		hash *= 16777619;
 	}
@@ -66,7 +66,7 @@ static CrString *push_string(CrArena *arena, CrString s) {
 }
 
 const CrString *cr_intern_string(CrInterner *in, const char *str,
-                                 uint32_t length) {
+                                 size_t length) {
 	CrString temp;
 	temp.str = str;
 	temp.length = length;

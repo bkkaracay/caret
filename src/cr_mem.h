@@ -5,8 +5,8 @@
 
 typedef struct CrBlock {
 	struct CrBlock *next;
-	uint32_t size;
-	uint32_t used;
+	size_t size;
+	size_t used;
 	char data[];
 } CrBlock;
 
@@ -19,7 +19,7 @@ typedef struct {
 	((type*) cr_arena_alloc(arena, sizeof(type)))
 
 CrArena cr_new_arena();
-void *cr_arena_alloc(CrArena *arena, uint32_t size);
+void *cr_arena_alloc(CrArena *arena, size_t size);
 void cr_free_arena(CrArena*);
 
 void *cr_malloc(size_t size);

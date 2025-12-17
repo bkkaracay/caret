@@ -33,7 +33,7 @@ static const char *consume_uint(const char *start, const char *end,
 }
 
 
-bool cr_str2uint(const char *start, uint32_t len, uint64_t *val) {
+bool cr_str2uint(const char *start, size_t len, uint64_t *val) {
 	if(start == NULL ||  len == 0 || val == NULL )
 		return false;
 
@@ -97,7 +97,7 @@ static const char *consume_as_double(const char *start, const char *end,
 }
 
 
-bool cr_str2float(const char *start, uint32_t len, double *val) {
+bool cr_str2float(const char *start, size_t len, double *val) {
 	if(start == NULL ||  len == 0 || val == NULL )
 		return false;
 	

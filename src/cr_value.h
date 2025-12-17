@@ -5,7 +5,7 @@
 
 typedef struct CrString {
 	CrHashable h;
-	uint32_t length;
+	size_t length;
 	const char *str;
 } CrString;
 
