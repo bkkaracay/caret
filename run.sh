@@ -1,1 +1,1 @@
-gcc src/*.c -o bin/caret && ./bin/caret
+gcc src/*.c -o bin/caret && ./bin/caret $@
