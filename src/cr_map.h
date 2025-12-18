@@ -9,7 +9,7 @@ typedef struct {
 
 typedef struct {
 	const CrHashable *key;
-	const CrHashable *val;
+	const void *val;
 	bool is_tomb;
 } CrMapEntry;
 
@@ -23,6 +23,7 @@ typedef struct {
 } CrMap;
 
 #define CR_AS_HASHABLE(x) ((const CrHashable *) x)
+#define CR_AS_VOID_PP(x)  ((const void **) x)
 
 CrMap cr_new_map(cr_map_keycmp comparer_fn);
 void cr_free_map(CrMap *map);
