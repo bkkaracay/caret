@@ -2,20 +2,7 @@
 
 #include "cr_intern.h"
 
-#define AS_STRING(x) ((const CrString *) x)
 #define AS_TYPE(x)   ((const CrType *) x)
-
-bool compare_string(const CrHashable *h0, const CrHashable *h1) {
-	const CrString *s0 = AS_STRING(h0);
-	const CrString *s1 = AS_STRING(h1);
-
-	if(s0->length == s1->length && h0->hash == h1->hash &&
-			memcmp(s0->str, s1->str, s0->length) == 0) {
-		return true;
-	}
-
-	return false;
-}
 
 bool compare_type(const CrHashable *h0, const CrHashable *h1) {
 	//CrTypeKind is used as hash.
@@ -28,7 +15,7 @@ bool compare_type(const CrHashable *h0, const CrHashable *h1) {
 
 CrInterner cr_new_interner(CrArena *arena) {
 	CrInterner intr;
-	intr.string_map = cr_new_map(compare_string);
+	intr.string_map = cr_new_map(cr_string_eq);
 	intr.type_map = cr_new_map(compare_type);
 	intr.arena = arena;
 
@@ -72,7 +59,7 @@ const CrString *cr_intern_string(CrInterner *in, const char *str,
 	temp.length = length;
 	temp.h.hash = hash_str(str, length);
 
-	const CrString *result = AS_STRING(cr_map_find(&in->string_map,
+	const CrString *result = CR_AS_STRING(cr_map_find(&in->string_map,
 	                                               CR_AS_HASHABLE(&temp)));
 	if(result != NULL)
 		return result;
