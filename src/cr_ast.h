@@ -43,6 +43,11 @@ typedef struct CrNode {
 
 		struct {
 			const CrString *name;
+
+			//Filled by CrChecker
+			const CrType *type; 
+			uint32_t slot;
+			bool is_global;
 		} var;
 
 		struct {

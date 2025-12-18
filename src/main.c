@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "cr_lexer.h"
+#include "cr_checker.h"
 #include "cr_debug.h"
 #include "cr_parser.h"
 
@@ -56,6 +56,18 @@ int main(int argc, char* argv[]) {
 	CrArena ast_arena = cr_new_arena();
 	CrParser parser = cr_new_parser(&lexer, &ast_arena, &intr);
 	CrNode *node = cr_produce_ast(&parser);
+
+	CrArena symtab_arena = cr_new_arena();
+	CrSymTab symtab;
+	cr_new_sym_tab(&symtab, &symtab_arena);
+
+	CrChecker checker = cr_new_checker(&symtab, &intr);
+	cr_scan_decl(&checker, node);
+	cr_check_ast(&checker, node);
+
+	cr_free_sym_tab(&symtab);
+	cr_free_arena(&symtab_arena);
+
 	
 	cr_free((void *)content);
 	cr_free_interner(&intr);
