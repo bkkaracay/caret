@@ -57,8 +57,10 @@ bool cr_map_get(CrMap *map, const CrHashable *key, const void **val) {
 	CrMapEntry *entry = find_entry(map, key);
 	if(entry->key == NULL)
 		return false;
+	
+	if(val != NULL)
+		*val = entry->val;
 
-	*val = entry->val;
 	return true;
 }
 
