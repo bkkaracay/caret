@@ -58,8 +58,6 @@ static bool is_uint(const CrType *type) {
 
 static bool is_float(const CrType *type) {
 	switch(type->kind) {
-		case CR_TK_FLOAT8:
-		case CR_TK_FLOAT16:
 		case CR_TK_FLOAT32:
 		case CR_TK_FLOAT64:
 			return true;
@@ -101,8 +99,6 @@ static bool is_compatible(const CrType *t0, const CrType *t1) {
 			if(t1->kind == CR_TK_INT_LIT)
 				return true;
 			break;
-		case CR_TK_FLOAT8:
-		case CR_TK_FLOAT16:
 		case CR_TK_FLOAT32:
 		case CR_TK_FLOAT64:
 			if(t1->kind == CR_TK_FLOAT_LIT)
@@ -171,8 +167,6 @@ static TypeGroup type2group(const CrType *type) {
 			return TG_UINT;
 		case CR_TK_INT_LIT:
 			return TG_INT_LIT;
-		case CR_TK_FLOAT8:
-		case CR_TK_FLOAT16:
 		case CR_TK_FLOAT32:
 		case CR_TK_FLOAT64:
 		case CR_TK_FLOAT_LIT:
