@@ -43,6 +43,19 @@ static bool is_int(const CrType *type) {
 	return false;
 }
 
+static bool is_uint(const CrType *type) {
+	switch(type->kind) {
+		case CR_TK_UINT8:
+		case CR_TK_UINT16:
+		case CR_TK_UINT32:
+		case CR_TK_UINT64:
+		case CR_TK_INT_LIT:
+			return true;
+	}
+
+	return false;
+}
+
 static bool is_float(const CrType *type) {
 	switch(type->kind) {
 		case CR_TK_FLOAT8:
@@ -81,6 +94,10 @@ static bool is_compatible(const CrType *t0, const CrType *t1) {
 		case CR_TK_INT16:
 		case CR_TK_INT32:
 		case CR_TK_INT64:
+		case CR_TK_UINT8:
+		case CR_TK_UINT16:
+		case CR_TK_UINT32:
+		case CR_TK_UINT64:
 			if(t1->kind == CR_TK_INT_LIT)
 				return true;
 			break;
@@ -92,7 +109,7 @@ static bool is_compatible(const CrType *t0, const CrType *t1) {
 				return true;
 			break;
 		case CR_TK_INT_LIT:
-			if(is_int(t1))
+			if(is_int(t1) || is_uint(t1))
 				return true;
 			break;
 		case CR_TK_FLOAT_LIT:
@@ -133,9 +150,10 @@ typedef enum {
 	TG_UNSUPPORTED = 0,
 	TG_INT         = 1 << 0,
 	TG_UINT        = 1 << 1, 
-	TG_FLOAT       = 1 << 2,
-	TG_BOOL        = 1 << 3,
-	TG_RUNE        = 1 << 4,
+	TG_INT_LIT     = 1 << 2, 
+	TG_FLOAT       = 1 << 3,
+	TG_BOOL        = 1 << 4,
+	TG_RUNE        = 1 << 5,
 	TG_ERR         = ~0,
 } TypeGroup;
 
@@ -145,8 +163,14 @@ static TypeGroup type2group(const CrType *type) {
 		case CR_TK_INT16:
 		case CR_TK_INT32:
 		case CR_TK_INT64:
-		case CR_TK_INT_LIT:
 			return TG_INT;
+		case CR_TK_UINT8:
+		case CR_TK_UINT16:
+		case CR_TK_UINT32:
+		case CR_TK_UINT64:
+			return TG_UINT;
+		case CR_TK_INT_LIT:
+			return TG_INT_LIT;
 		case CR_TK_FLOAT8:
 		case CR_TK_FLOAT16:
 		case CR_TK_FLOAT32:
@@ -159,9 +183,6 @@ static TypeGroup type2group(const CrType *type) {
 			return TG_BOOL;
 		case CR_TK_ERR:
 			return TG_ERR;
-		default:
-			return TG_UNSUPPORTED;
-			
 	}
 
 	return TG_UNSUPPORTED;
@@ -181,15 +202,15 @@ static bool can_apply(TypeGroup rules[], size_t len, CrTokenType tt,
 }
 
 static TypeGroup binary_rules[] = {
-	[CR_TT_PLUS]    = TG_INT | TG_FLOAT,
-	[CR_TT_MINUS]   = TG_INT | TG_FLOAT,
-	[CR_TT_STAR]    = TG_INT | TG_FLOAT,
-	[CR_TT_SLASH]   = TG_INT | TG_FLOAT,
-	[CR_TT_PERCENT] = TG_UINT,
+	[CR_TT_PLUS]    = TG_INT | TG_INT_LIT | TG_FLOAT,
+	[CR_TT_MINUS]   = TG_INT | TG_INT_LIT | TG_FLOAT,
+	[CR_TT_STAR]    = TG_INT | TG_INT_LIT | TG_FLOAT,
+	[CR_TT_SLASH]   = TG_INT | TG_INT_LIT | TG_FLOAT,
+	[CR_TT_PERCENT] = TG_UINT | TG_INT_LIT,
 };
 
 static TypeGroup unary_rules[] = {
-	[CR_TT_MINUS]   = TG_INT | TG_FLOAT,
+	[CR_TT_MINUS]   = TG_INT | TG_INT_LIT | TG_FLOAT,
 };
 
 static bool can_apply_binary(CrTokenType tt, const CrType *type) {

@@ -7,6 +7,10 @@ const char *cr_type_spelling(const CrType *type) {
 		case CR_TK_INT16:     return "int16";
 		case CR_TK_INT32:     return "int32";
 		case CR_TK_INT64:     return "int64"; 
+		case CR_TK_UINT8:     return "uint8";
+		case CR_TK_UINT16:    return "uint16";
+		case CR_TK_UINT32:    return "uint32";
+		case CR_TK_UINT64:    return "uint64"; 
 		case CR_TK_FLOAT8:    return "float8";
 		case CR_TK_FLOAT16:   return "float16";
 		case CR_TK_FLOAT32:   return "float32";

@@ -283,6 +283,10 @@ static ParseRule rules[] = {
 	[CR_TT_INT16]       = {NULL,       NULL,   PREC_NONE},
 	[CR_TT_INT32]       = {NULL,       NULL,   PREC_NONE},
 	[CR_TT_INT64]       = {NULL,       NULL,   PREC_NONE},
+	[CR_TT_UINT8]       = {NULL,       NULL,   PREC_NONE},
+	[CR_TT_UINT16]      = {NULL,       NULL,   PREC_NONE},
+	[CR_TT_UINT32]      = {NULL,       NULL,   PREC_NONE},
+	[CR_TT_UINT64]      = {NULL,       NULL,   PREC_NONE},
 	[CR_TT_FLOAT8]      = {NULL,       NULL,   PREC_NONE},
 	[CR_TT_FLOAT16]     = {NULL,       NULL,   PREC_NONE},
 	[CR_TT_FLOAT32]     = {NULL,       NULL,   PREC_NONE},
@@ -368,6 +372,10 @@ static const CrType *type(CrParser *p) {
 		case CR_TT_INT16:      kind = CR_TK_INT16; break;
 		case CR_TT_INT32:      kind = CR_TK_INT32; break;
 		case CR_TT_INT64:      kind = CR_TK_INT64; break;
+		case CR_TT_UINT8:      kind = CR_TK_UINT8; break;
+		case CR_TT_UINT16:     kind = CR_TK_UINT16; break;
+		case CR_TT_UINT32:     kind = CR_TK_UINT32; break;
+		case CR_TT_UINT64:     kind = CR_TK_UINT64; break;
 		case CR_TT_FLOAT8:     kind = CR_TK_FLOAT8; break;
 		case CR_TT_FLOAT16:    kind = CR_TK_FLOAT16; break;
 		case CR_TT_FLOAT32:    kind = CR_TK_FLOAT32; break;
@@ -430,6 +438,10 @@ static CrNode *statement(CrParser *p) {
 		case CR_TT_INT16:
 		case CR_TT_INT32:
 		case CR_TT_INT64:
+		case CR_TT_UINT8:
+		case CR_TT_UINT16:
+		case CR_TT_UINT32:
+		case CR_TT_UINT64:
 		case CR_TT_FLOAT8:
 		case CR_TT_FLOAT16:
 		case CR_TT_FLOAT32:

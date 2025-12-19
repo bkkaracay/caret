@@ -27,6 +27,10 @@ const char *cr_tt_spelling(CrTokenType tt) {
 		case CR_TT_INT16:      return "int16";
 		case CR_TT_INT32:      return "int32";
 		case CR_TT_INT64:      return "int64";
+		case CR_TT_UINT8:      return "uint8";
+		case CR_TT_UINT16:     return "uint16";
+		case CR_TT_UINT32:     return "uint32";
+		case CR_TT_UINT64:     return "uint64";
 		case CR_TT_FLOAT8:     return "float8";
 		case CR_TT_FLOAT16:    return "float16";
 		case CR_TT_FLOAT32:    return "float32";
@@ -210,6 +214,13 @@ static const KeywordVariant int_variants[] = {
 	{"64", 2, CR_TT_INT64}
 };
 
+static const KeywordVariant uint_variants[] = {
+	{"8",  1, CR_TT_UINT8},
+	{"16", 2, CR_TT_UINT16},
+	{"32", 2, CR_TT_UINT32},
+	{"64", 2, CR_TT_UINT64}
+};
+
 static const KeywordVariant float_variants[] = {
 	{"8",  1, CR_TT_FLOAT8},
 	{"16", 2, CR_TT_FLOAT16},
@@ -283,6 +294,8 @@ static CrTokenType identifier_type(CrLexer *l) {
 			return check_keyword(l, 1, 3, "une", CR_TT_RUNE);
 		case 't':
 			return check_keyword(l, 1, 3, "rue", CR_TT_TRUE);
+		case 'u':
+			return check_variants(l, 1, 3, "int", uint_variants, 4);
 	}
 
 	return CR_TT_IDENTIFIER;
