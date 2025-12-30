@@ -1,4 +1,4 @@
-[<- back](00%20-%20Contents.md) | [next ->](02%20-%20Data%20Types.md)
+[<- back](00%20-%20Introduction.md) | [next ->](02%20-%20Data%20Types.md)
 
 # Hello, World!
 ## Semicolons
