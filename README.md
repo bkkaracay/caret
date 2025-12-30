@@ -34,6 +34,10 @@ int32 main(string args[]^) {
 
 ## Documentation
 
+### [Learn the Language](docs/tutorial/00%20-%20Introduction.md)
+
+Learn the caret language with quick tutorials.
+
 ### [Architecture](ARCHITECTURE.md)
 
 Take a look at the implementation details and pipeline.
