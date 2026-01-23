@@ -30,100 +30,54 @@ static void err(CrChecker *c, CrNode *node, const char *msg_fmt, ...) {
 }
 
 
-static bool is_int(const CrType *type) {
-	switch(type->kind) {
-		case CR_TK_INT8:
-		case CR_TK_INT16:
-		case CR_TK_INT32:
-		case CR_TK_INT64:
-		case CR_TK_INT_LIT:
-			return true;
-	}
-
-	return false;
+static bool is_intx(const CrType *type) {
+	return CR_TK_INT8 <= type->kind && type->kind <= CR_TK_INT64;  
 }
 
-static bool is_uint(const CrType *type) {
-	switch(type->kind) {
-		case CR_TK_UINT8:
-		case CR_TK_UINT16:
-		case CR_TK_UINT32:
-		case CR_TK_UINT64:
-		case CR_TK_INT_LIT:
-			return true;
-	}
-
-	return false;
+static bool is_uintx(const CrType *type) {
+	return CR_TK_UINT8 <= type->kind && type->kind <= CR_TK_UINT64;  
 }
 
-static bool is_float(const CrType *type) {
-	switch(type->kind) {
-		case CR_TK_FLOAT32:
-		case CR_TK_FLOAT64:
-			return true;
-	}
-
-	return false;
+static bool is_int_lit(const CrType *type) {
+	return type->kind == CR_TK_INT_LIT;
 }
 
-static bool is_numeric(const CrType *type) {
-	return is_int(type) || is_float(type);
+static bool is_int_family(const CrType *type) {
+	return is_int_lit(type) || is_intx(type) || is_uintx(type);
 }
 
-static bool is_bool(const CrType *type) {
-	return type->kind == CR_TK_BOOL;
+static bool is_floatx(const CrType *type) {
+	return type->kind == CR_TK_FLOAT32 || type->kind == CR_TK_FLOAT64;
 }
 
-static bool is_rune(const CrType *type) {
-	return type->kind == CR_TK_BOOL;
+static bool is_float_lit(const CrType *type) {
+	return type->kind == CR_TK_FLOAT_LIT;
 }
 
-
-static bool is_err(const CrType *type) {
-	return type->kind == CR_TK_ERR;
+static bool is_float_family(const CrType *type) {
+	return is_float_lit(type) || is_floatx(type);
 }
+
+static bool is_bool(const CrType *type) { return type->kind == CR_TK_BOOL; }
+
+static bool is_rune(const CrType *type) { return type->kind == CR_TK_RUNE; }
+
+static bool is_err(const CrType *type) { return type->kind == CR_TK_ERR; }
 
 static bool is_compatible(const CrType *t0, const CrType *t1) {
 	if(is_err(t0) || is_err(t1))
 		return true;
 
-	switch(t0->kind) {
-		case CR_TK_INT8:
-		case CR_TK_INT16:
-		case CR_TK_INT32:
-		case CR_TK_INT64:
-		case CR_TK_UINT8:
-		case CR_TK_UINT16:
-		case CR_TK_UINT32:
-		case CR_TK_UINT64:
-			if(t1->kind == CR_TK_INT_LIT)
-				return true;
-			break;
-		case CR_TK_FLOAT32:
-		case CR_TK_FLOAT64:
-			if(t1->kind == CR_TK_FLOAT_LIT)
-				return true;
-			break;
-		case CR_TK_INT_LIT:
-			if(is_int(t1) || is_uint(t1))
-				return true;
-			break;
-		case CR_TK_FLOAT_LIT:
-			if(is_float(t1))
-				return true;
-			break;
-		case CR_TK_BOOL:
-			if(is_bool(t1))
-				return true;
-			break;
-		case CR_TK_RUNE:
-			if(is_rune(t1))
-				return true;
-			break;
+	if(t0 == t1)
+		return true;
 
-	}
+	if(is_int_family(t0) && is_int_family(t1))
+		return is_int_lit(t0) || is_int_lit(t1);
+	
+	if(is_float_family(t0) && is_float_family(t1))
+		return is_float_lit(t0) || is_float_lit(t1);
 
-	return t0->kind == t1->kind;
+	return false;
 }
 
 static const CrType *unify(CrChecker *c, const CrType *t0, const CrType *t1) {
@@ -132,12 +86,9 @@ static const CrType *unify(CrChecker *c, const CrType *t0, const CrType *t1) {
 
 	if(!is_compatible(t0, t1))
 		return cr_basic_type(c->intr, CR_TK_ERR);
-
-	switch(t0->kind) {
-		case CR_TK_INT_LIT:
-		case CR_TK_FLOAT_LIT:
-			return t1;
-	}
+	
+	if(is_int_lit(t0) || is_float_lit(t0))
+		return t1;
 
 	return t0;
 }
@@ -153,33 +104,32 @@ typedef enum {
 	TG_ERR         = ~0,
 } TypeGroup;
 
-static TypeGroup type2group(const CrType *type) {
-	switch(type->kind) {
-		case CR_TK_INT8:
-		case CR_TK_INT16:
-		case CR_TK_INT32:
-		case CR_TK_INT64:
-			return TG_INT;
-		case CR_TK_UINT8:
-		case CR_TK_UINT16:
-		case CR_TK_UINT32:
-		case CR_TK_UINT64:
-			return TG_UINT;
-		case CR_TK_INT_LIT:
-			return TG_INT_LIT;
-		case CR_TK_FLOAT32:
-		case CR_TK_FLOAT64:
-		case CR_TK_FLOAT_LIT:
-			return TG_FLOAT;
-		case CR_TK_RUNE:
-			return TG_RUNE;
-		case CR_TK_BOOL:
-			return TG_BOOL;
-		case CR_TK_ERR:
-			return TG_ERR;
-	}
+static const TypeGroup group_table[] = {
+	[CR_TK_INT8]  = TG_INT,
+	[CR_TK_INT16] = TG_INT,
+	[CR_TK_INT32] = TG_INT,
+	[CR_TK_INT64] = TG_INT,
+	
+	[CR_TK_UINT8]  = TG_UINT,
+	[CR_TK_UINT16] = TG_UINT,
+	[CR_TK_UINT32] = TG_UINT,
+	[CR_TK_UINT64] = TG_UINT,
+	
+	[CR_TK_INT_LIT]   = TG_INT_LIT,
 
-	return TG_UNSUPPORTED;
+	[CR_TK_FLOAT_LIT] = TG_FLOAT, 
+	[CR_TK_FLOAT32]   = TG_FLOAT,
+	[CR_TK_FLOAT64]   = TG_FLOAT,
+	
+	[CR_TK_RUNE] = TG_RUNE,
+	[CR_TK_BOOL] = TG_BOOL,
+};
+
+static TypeGroup type2group(const CrType *type) {
+	if(is_err(type))
+		return TG_ERR;
+
+	return group_table[type->kind];
 }
 
 static bool can_apply(TypeGroup rules[], size_t len, CrTokenType tt,
@@ -264,14 +214,20 @@ void cr_scan_decl(CrChecker *c, CrNode *root) {
 	}
 }
 
-static const CrType *check(CrChecker *c, CrNode *node);
+static void check(CrChecker *c, CrNode *node);
 
-static const CrType *binary(CrChecker *c, CrNode *node) {
-	const CrType *t_left = check(c, node->as.binary_op.left);
-	const CrType *t_right = check(c, node->as.binary_op.right);
+static void binary(CrChecker *c, CrNode *node) {
+	check(c, node->as.binary_op.left);
+	const CrType *t_left = node->as.binary_op.left->data_type;
+	
+	check(c, node->as.binary_op.right);
+	const CrType *t_right = node->as.binary_op.right->data_type;
 
-	if(is_err(t_left) || is_err(t_right))
-		return cr_basic_type(c->intr, CR_TK_ERR);
+
+	if(is_err(t_left) || is_err(t_right)) {
+		node->data_type = cr_basic_type(c->intr, CR_TK_ERR);
+		return;
+	}
 
 	const CrType *result_type = unify(c, t_left, t_right);
 	if(is_err(result_type)) {
@@ -289,14 +245,15 @@ static const CrType *binary(CrChecker *c, CrNode *node) {
 			cr_type_spelling(t_left),
 			cr_type_spelling(t_right));
 
-		return cr_basic_type(c->intr, CR_TK_ERR);
+		result_type = cr_basic_type(c->intr, CR_TK_ERR);
 	}
 
-	return result_type;
+	node->data_type = result_type;
 }
 
-static const CrType *unary(CrChecker *c, CrNode *node) {
-	const CrType *t_right = check(c, node->as.unary_op.right);
+static void unary(CrChecker *c, CrNode *node) {
+	check(c, node->as.unary_op.right);
+	const CrType *t_right = node->as.unary_op.right->data_type;
 
 	if(!can_apply_unary(node->as.unary_op.tt, t_right)) {
 		err(c, node,
@@ -304,49 +261,26 @@ static const CrType *unary(CrChecker *c, CrNode *node) {
 		    		" operand of type '%s'.",
 			cr_tt_spelling(node->as.unary_op.tt),
 			cr_type_spelling(t_right));
+		
+		t_right = cr_basic_type(c->intr, CR_TK_ERR);
 	}
 
-	return t_right;
+	node->data_type = t_right;
 }
 
-static const CrType *var(CrChecker *c, CrNode *node) {
+static void var(CrChecker *c, CrNode *node) {
 	const CrSym *sym = cr_resolve_var(c->symtab, node->as.var.name);
 	if(sym == NULL) {
 		err(c, node, "Undefined variable");
 	
-		return cr_basic_type(c->intr, CR_TK_ERR);
+		node->data_type = cr_basic_type(c->intr, CR_TK_ERR);
+		return;
 	}
 	
-	node->as.var.type = sym->data_type;
+	node->data_type = sym->data_type;
 	node->as.var.slot = sym->slot;
 	node->as.var.is_global = cr_is_global(sym);
-	
-	return sym->data_type;
 }
-
-static const CrType *check(CrChecker *c, CrNode *node) {
-	switch(node->type) {
-		case CR_NT_BINARY:
-			return binary(c, node);
-		case CR_NT_UNARY:
-			return unary(c, node);
-		case CR_NT_INT_LIT:
-			return cr_basic_type(c->intr, CR_TK_INT_LIT);
-		case CR_NT_FLOAT_LIT:
-			return cr_basic_type(c->intr, CR_TK_FLOAT_LIT);
-		case CR_NT_RUNE_LIT:
-			return cr_basic_type(c->intr, CR_TK_RUNE);
-		case CR_NT_BOOL_LIT:
-			return cr_basic_type(c->intr, CR_TK_BOOL);
-		case CR_NT_VAR:
-			return var(c, node);
-	}
-
-	return cr_basic_type(c->intr, CR_TK_ERR);
-}
-
-
-static void analyze(CrChecker *c, CrNode *node);
 
 static void block(CrChecker *c, CrNode *node) {
 	cr_begin_scope(c->symtab);
@@ -357,7 +291,8 @@ static void block(CrChecker *c, CrNode *node) {
 }
 
 static void if_stmt(CrChecker *c, CrNode *node) {
-	const CrType *t_cond = check(c, node->as.if_stmt.cond);
+	check(c, node->as.if_stmt.cond);
+	const CrType *t_cond = node->as.if_stmt.cond->data_type;
 
 	if(!is_bool(t_cond)) {
 		err(c, node->as.if_stmt.cond,
@@ -365,14 +300,15 @@ static void if_stmt(CrChecker *c, CrNode *node) {
 			cr_type_spelling(t_cond));	
 	}
 
-	analyze(c, node->as.if_stmt.body);
+	check(c, node->as.if_stmt.body);
 }
 
 static void var_decl(CrChecker *c, CrNode *node) {
 	const CrType *t_var = node->as.var_decl.type;
 	
 	if(node->as.var_decl.init != NULL) {
-		const CrType *t_init = check(c, node->as.var_decl.init);
+		check(c, node->as.var_decl.init);
+		const CrType *t_init = node->as.var_decl.init->data_type;
 	
 		if(!is_compatible(t_var, t_init)) {
 			err(c, node, 
@@ -388,8 +324,7 @@ static void var_decl(CrChecker *c, CrNode *node) {
 	if(cr_in_global_scope(c->symtab))
 		return;
 	
-	CrSymCode code = cr_define_var(c->symtab, node->as.var_decl.type,
-	                               node->as.var_decl.var);
+	CrSymCode code = cr_define_var(c->symtab, t_var, node->as.var_decl.var);
 	if(code != CR_SYMCODE_OK) 
 		report_symcode(c, node, code);
 }
@@ -406,32 +341,57 @@ static bool is_assignable(CrNode *node) {
 static void assign(CrChecker *c, CrNode *node) {
 	if(!is_assignable(node->as.assign.left))
 		err(c, node->as.assign.left, "Invalid assignment target.");
+	
+	check(c, node->as.assign.left);
+	const CrType *t_left = node->as.assign.left->data_type;
 
-	const CrType *t_left = check(c, node->as.assign.left);
-	const CrType *t_right = check(c, node->as.assign.right);
+	check(c, node->as.assign.right);
+	const CrType *t_right = node->as.assign.right->data_type;
 
 	if(!is_compatible(t_left, t_right)) {
 		err(c, node,
 			"Type mismatch: '%s' vs '%s'.",
 			cr_type_spelling(t_left),
 			cr_type_spelling(t_right));
+		return;
 	}
+
+	node->as.assign.right->data_type = t_left;
 }
 
-static void analyze(CrChecker *c, CrNode *node) {
-	switch(node->type) {
-		case CR_NT_BLOCK:    block(c, node); break;
-		case CR_NT_IF:       if_stmt(c, node); break;
-		case CR_NT_VAR_DECL: var_decl(c, node); break;
-		case CR_NT_ASSIGN:   assign(c, node); break;
-		default:             check(c, node);
-	}
+typedef void (*CheckFunc) (CrChecker *, CrNode *);
+
+typedef struct {
+	CheckFunc func;
+	CrTypeKind kind;
+} CheckRule;
+
+static CheckRule rules[] = {
+	[CR_NT_BINARY]    = {binary,   0},
+	[CR_NT_UNARY]     = {unary,    0},
+	[CR_NT_INT_LIT]   = {NULL,     CR_TK_INT_LIT},
+	[CR_NT_FLOAT_LIT] = {NULL,     CR_TK_FLOAT_LIT},
+	[CR_NT_RUNE_LIT]  = {NULL,     CR_TK_RUNE},
+	[CR_NT_BOOL_LIT]  = {NULL,     CR_TK_BOOL},
+	[CR_NT_VAR]       = {var,      0},
+	[CR_NT_BLOCK]     = {block,    0},
+	[CR_NT_IF]        = {if_stmt,  0}, 
+	[CR_NT_VAR_DECL]  = {var_decl, 0}, 
+	[CR_NT_ASSIGN]    = {assign,   0}, 
+};
+
+static void check(CrChecker *c, CrNode *node) {
+	CheckRule rule = rules[node->type];
+	if(rule.func == NULL)
+		node->data_type = cr_basic_type(c->intr, rule.kind);
+	else
+		rule.func(c, node);
 }
 
 bool cr_check_ast(CrChecker *c, CrNode *root) {
 	CrNode *iter = root;
 	while(iter != NULL) {
-		analyze(c, iter);
+		check(c, iter);
 		iter = iter->next;
 	}
 

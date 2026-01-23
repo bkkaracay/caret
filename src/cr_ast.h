@@ -18,7 +18,10 @@ typedef enum {
 
 typedef struct CrNode {
 	CrNodeType type;
+	const CrType *data_type; //Filled by CrChecker 
+	
 	struct CrNode *next;
+	
 	const char *start;
 	uint32_t length;
 	uint32_t line;
@@ -45,7 +48,6 @@ typedef struct CrNode {
 			const CrString *name;
 
 			//Filled by CrChecker
-			const CrType *type; 
 			uint32_t slot;
 			bool is_global;
 		} var;
