@@ -214,6 +214,34 @@ void cr_scan_decl(CrChecker *c, CrNode *root) {
 	}
 }
 
+static void fold_binary(CrNode *node) {
+	cr_int128 left = node->as.binary_op.left->as.int_lit.val;
+	cr_int128 right = node->as.binary_op.right->as.int_lit.val;
+	
+	cr_int128 result;
+	switch(node->as.binary_op.tt) {
+		case CR_TT_PLUS:    result = cr_add128(left, right); break;
+		case CR_TT_MINUS:   result = cr_sub128(left, right); break;
+		case CR_TT_STAR:    result = cr_mul128(left, right); break;
+		case CR_TT_SLASH:   result = cr_div128(left, right); break;
+		case CR_TT_PERCENT: result = cr_rem128(left, right); break;
+	}
+
+	node->type = CR_NT_INT_LIT;
+	node->as.int_lit.val = result;
+}
+
+static void fold_unary(CrNode *node) {
+	cr_int128 right = node->as.unary_op.right->as.int_lit.val;
+	
+	cr_int128 result;
+	switch(node->as.binary_op.tt) {
+		case CR_TT_MINUS: result = cr_neg128(right); break;
+	}
+
+	node->type = CR_NT_INT_LIT;
+	node->as.int_lit.val = result;
+}
 static void check(CrChecker *c, CrNode *node);
 
 static void binary(CrChecker *c, CrNode *node) {
@@ -249,6 +277,9 @@ static void binary(CrChecker *c, CrNode *node) {
 	}
 
 	node->data_type = result_type;
+	
+	if(is_int_lit(result_type))
+		fold_binary(node);
 }
 
 static void unary(CrChecker *c, CrNode *node) {
@@ -266,6 +297,9 @@ static void unary(CrChecker *c, CrNode *node) {
 	}
 
 	node->data_type = t_right;
+	
+	if(is_int_lit(t_right))
+		fold_unary(node);
 }
 
 static void var(CrChecker *c, CrNode *node) {
