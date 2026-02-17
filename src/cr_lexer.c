@@ -364,7 +364,7 @@ CrToken cr_scan_token(CrLexer *l) {
 			return make_token(l, CR_TT_MINUS);
 		case '*':
 			return make_token(l, CR_TT_STAR);
-		case '\\':
+		case '/':
 			return make_token(l, CR_TT_SLASH);
 		case '%':
 			return make_token(l, CR_TT_PERCENT);
