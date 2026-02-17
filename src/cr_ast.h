@@ -1,6 +1,7 @@
 #ifndef cr_ast_h
 #define cr_ast_h
 
+#include "cr_int128.h"
 #include "cr_lexer.h"
 #include "cr_value.h"
 #include "cr_type.h"
@@ -28,7 +29,7 @@ typedef struct CrNode {
 	const char *line_start;
 
 	union {
-		struct { uint64_t val; } int_lit;
+		struct { cr_int128 val; } int_lit;
 		struct { double val; } float_lit;
 		struct { uint32_t val; } rune_lit;
 		struct { uint8_t val; } bool_lit;

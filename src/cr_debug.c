@@ -108,7 +108,7 @@ static void print_node(CrNode *node, int in) {
 			print_node_unary(node);
 			break;
 		case CR_NT_INT_LIT:
-			printf("%"PRId64, node->as.int_lit.val);
+			cr_print128(node->as.int_lit.val);
 			break;
 		case CR_NT_FLOAT_LIT:
 			printf("%lf", node->as.float_lit.val);

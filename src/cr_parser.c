@@ -209,7 +209,7 @@ static CrNode *int_lit(CrParser *p, CrNode *prev) {
 
 	
 	CrNode *node = new_node(p->arena, CR_NT_INT_LIT);
-	node->as.int_lit.val = val;
+	node->as.int_lit.val = cr_u64_to_i128(val);
 
 	set_span_t(node, p->previous);
 	return node;
