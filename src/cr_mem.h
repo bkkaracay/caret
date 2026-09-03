@@ -8,11 +8,11 @@ typedef struct CrBlock {
 	size_t size;
 	size_t used;
 	char data[];
-} CrBlock;
+} CrMemBlock;
 
 typedef struct {
-	CrBlock *head;
-	CrBlock *tail;
+	CrMemBlock *head;
+	CrMemBlock *tail;
 } CrArena;
 
 #define CR_ARENA_NEW(arena, type) \
@@ -24,6 +24,7 @@ void cr_free_arena(CrArena*);
 
 void *cr_malloc(size_t size);
 void *cr_calloc(size_t num, size_t size);
+void *cr_realloc(void *p, size_t new_size);
 void cr_free(void *p);
 
 #endif

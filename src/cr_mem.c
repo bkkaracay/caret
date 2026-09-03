@@ -24,11 +24,11 @@ CrArena cr_new_arena() {
 	return a;
 }
 
-static CrBlock *new_block(CrArena *ar, size_t aligned_size) {
+static CrMemBlock *new_block(CrArena *ar, size_t aligned_size) {
 	if(aligned_size < BLOCK_SIZE)
 		aligned_size = BLOCK_SIZE;
 
-	CrBlock *block = malloc(sizeof(CrBlock) + aligned_size);
+	CrMemBlock *block = malloc(sizeof(CrMemBlock) + aligned_size);
 	block->next = NULL;
 	block->size = aligned_size;
 	block->used = 0;
@@ -36,7 +36,7 @@ static CrBlock *new_block(CrArena *ar, size_t aligned_size) {
 	return block;
 }
 
-static void link_block(CrArena *ar, CrBlock *block) {
+static void link_block(CrArena *ar, CrMemBlock *block) {
 	if(ar->head == NULL) {
 		ar->tail = ar->head = block;
 		return;
@@ -59,8 +59,8 @@ void *cr_arena_alloc(CrArena *ar, size_t size) {
 }
 
 void cr_free_arena(CrArena *ar) {
-	CrBlock *iter = ar->tail;
-	CrBlock *temp;
+	CrMemBlock *iter = ar->tail;
+	CrMemBlock *temp;
 
 	while(iter != NULL) {
 		temp = iter;
@@ -79,6 +79,10 @@ void *cr_malloc(size_t size) {
 
 void *cr_calloc(size_t num, size_t size) {
 	return calloc(num, size);
+}
+
+void *cr_realloc(void *p, size_t new_size) {
+	return realloc(p, new_size);
 }
 
 void cr_free(void *p) {
